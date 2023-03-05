@@ -280,6 +280,7 @@ function init(data) {
 
         rl.question("What's your name? ", function (name) {
             // Assign the player object's name property to the user entered name here
+            player.name = name
             console.log(`Welcome ${player.name} !!!`.blue);
             start(data);
         });
@@ -302,23 +303,33 @@ function init(data) {
     const shop = (prodList, tBill, lastProd) => {
         let totalBill = tBill;
         const prId = generateProductId();
-        let product = null; // Assign the value of product here
-        let productDetails = null; // Assign the value of productDetails here
+        // let product = null; // Assign the value of product here
+        let product = !Object.is(lastProd, undefined) ? lastProd : getProduct(prodList, prId);  
+        // let productDetails = null; // Assign the value of productDetails here
+        let productDetails = product.getDetails();
+
 
         rl.question(`You can buy - ${productDetails}.\n Do you want to buy this item <Y/N>? `.yellow, function (option) {
-            const regexYes = null; // Use the RegExp built-in object type here as appropriate
-            const regexNo = null; // Use the RegExp built-in object type here as appropriate
+            // const regexYes = null; // Use the RegExp built-in object type here as appropriate
+            const regexYes = new RegExp('y', 'i');
+            // const regexNo = null; // Use the RegExp built-in object type here as appropriate
+            const regexNo = new RegExp('n', 'i');
             if (regexYes.test(option)) {
                 totalBill = calculateBill(product, totalBill);
                 calculatePoints(product, totalBill);
                 console.log(`${player.name} you earned ${player.getCurrentScore()} points!`.bold);
                 if (player.score >= 500) {
                     // Define and set new property status in the player object here
+                    Object.defineProperty(player, "status", {
+                        value: "Shopping Master"
+                    })
                     exitWon();
                 } else {
                     let iCount = ++player.items;
                     // Make the Object.defineProperty() call here to set the value of items using the value of iCount
-                    
+                    Object.defineProperty(player, "items", {
+                        value: iCount
+                    })
                     if (player.items < 10) {
                         shop(prodList, totalBill);
                     } else {
